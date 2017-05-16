@@ -12,26 +12,36 @@ import CameraContainer from './src/CameraContainer';
 
 class nine extends Component {
   state = {
-    items: [0,1,2]
+    items: [0,1,2],
+    globalActiveCamera: ""
+  }
+
+  setCurrentCamera = (name) => {
+    this.setState({globalActiveCamera: name})
   }
   render() {
-    const createCameraBoxes = this.state.items.map((i, key) => {
-      return (
-        <View style={styles.mediaBox} key={key}>
-          <CameraContainer/>
-        </View>
-      )
-    });
+    {console.log(this.state.globalActiveCamera)}
     const createRow = this.state.items.map((i, key) => {
       return (
         <View style={styles.row} key={key}>
-          {createCameraBoxes}
+          {this.state.items.map((i, keys) => {
+            const thisClassName = "cam" + (key + 1) + (keys + 1) + ""
+            return (
+              <View style={styles.mediaBox} key={keys}>
+                <CameraContainer
+                  globalActiveCamera={this.state.globalActiveCamera}
+                  className={thisClassName}
+                  setCurrentCamera={this.setCurrentCamera}/>
+              </View>
+            )
+          })}
         </View>
       )
     });
     return (
       <View style={styles.container}>
         {createRow}
+        <View style={{flex: 0, backgroundColor: "red"}}/>
       </View>
     );
   }

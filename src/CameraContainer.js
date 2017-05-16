@@ -9,42 +9,56 @@ import {
   View,
   Image
 } from 'react-native';
-import Camera from 'react-native-camera';
+import randomColor from 'randomcolor';
 
 class CameraContainer extends Component {
   state = {
     isTakingPictures: false
   }
 
-  toggleCamera = () => {
-    this.state.isTakingPictures ?
+  // componentDidMount = () => {
+  //   console.log(this.props)
+  // }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.className === nextProps.globalActiveCamera && this.state.isTakingPictures === false) {
+      console.log(this.props.className, nextProps.globalActiveCamera)
+      return true;
+    } else if (this.props.className !== nextProps.globalActiveCamera && this.state.isTakingPictures === true) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  componentWillUpdate = () => {
+    if (this.props.className !== this.props.globalActiveCamera && this.state.isTakingPictures === true) {
       this.setState({isTakingPictures: false})
-    :
-      this.setState({isTakingPictures: true})
+    }
+  }
+
+  toggleCamera = () => {
+    this.props.setCurrentCamera(this.props.className);
+    this.setState({isTakingPictures: true})
   }
 
   render() {
-    const { isTakingPictures } = this.state;
+    // const { isTakingPictures } = this.state;
+    const { globalActiveCamera, className } = this.props;
     return (
       <TouchableHighlight
         onPress={this.toggleCamera}
-        style={{flex: 1}}>
-        <View style={styles.container}>
-          {isTakingPictures ?
-            <Camera
-              ref={(cam) => {
-                this.camera = cam;
-              }}
-              style={styles.preview}
-              type={"front"}
-              aspect={Camera.constants.Aspect.fill}>
-              <Text style={styles.capture} onPress={this.takePicture.bind(this)}>[CAPTURE]</Text>
-            </Camera>
+        style={styles.cameraContainer}>
+        <View style={styles.mediaContainer}>
+          {globalActiveCamera === className ?
+            this.props.masterCamera
           :
-            <Image
-              style={{flex: 1}}
-              source={require('./images/default.gif')}
-            />
+            // <Image
+            //   style={{flex: 1}}
+            //   source={require('./images/default.gif')}
+            // />
+
+            <View style={{flex: 1, backgroundColor: randomColor()}}></View>
           }
         </View>
       </TouchableHighlight>
@@ -61,14 +75,18 @@ class CameraContainer extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  cameraContainer: {
+    flex: 1,
+    overflow: 'hidden'
+  },
+  mediaContainer: {
     flex: 1,
     flexDirection: 'row',
   },
   preview: {
     flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center'
+    // justifyContent: 'flex-end',
+    // alignItems: 'center'
   },
   capture: {
     flex: 0,
